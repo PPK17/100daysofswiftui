@@ -16,8 +16,19 @@ struct AddBookView: View {
     @State private var rating = 3
     @State private var genre = ""
     @State private var review = ""
-    @State private var showingAlert = false
-    @State private var textAlert = ""
+
+    private var isInvalid: Bool {
+        if String(title).trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return true
+        }
+        if String(author).trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return true
+        }
+        if String(genre).trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return true
+        }
+        return false
+    }
     
     let genres = ["Fantasy", "Horror", "Kids", "Mystery", "Poetry", "Romance", "Thriller"]
     
@@ -43,21 +54,6 @@ struct AddBookView: View {
                 Section {
                     Button("Save") {
                         let newBook = Book(context: moc)
-                        guard !String(title).trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-                            textAlert = "You must write a title."
-                            showingAlert.toggle()
-                            return
-                        }
-                        guard !String(author).trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-                            textAlert = "You must write an author."
-                            showingAlert.toggle()
-                            return
-                        }
-                        guard !String(genre).trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-                            textAlert = "You must select a genre."
-                            showingAlert.toggle()
-                            return
-                        }
                         newBook.id = UUID()
                         newBook.title = title
                         newBook.author = author
@@ -68,14 +64,14 @@ struct AddBookView: View {
                         try? moc.save()
                         dismiss()
                     }
-                    .alert(isPresented: $showingAlert) {
-                        Alert(title: Text("Warning"), message: Text(textAlert), dismissButton: .default(Text("Got it!")))
-                    }
                 }
+                .disabled(isInvalid)
             }
             .navigationTitle("Add Book")
         }
     }
+    
+
 }
 
 struct AddBookView_Previews: PreviewProvider {
